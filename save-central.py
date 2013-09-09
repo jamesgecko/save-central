@@ -9,9 +9,12 @@ def main():
     if shutil.which('junction') is None:
         print("Junction command not found! Check the README.")
 
+    create_junctions()
+    print('Done')
+
+def create_junctions():
     for old_path, new_path in save_paths():
         move_and_junction(old_path, new_path)
-    print('Done')
 
 def save_paths():
     with open('list.csv', newline='') as csvfile:
@@ -34,6 +37,21 @@ def move_and_junction(old_path, new_path):
             hide_directory(old_path)
         else:
             print("Already junctioned: {}".format(old_path))
+
+def restore_junctions():
+    for old_path, new_path in save_paths():
+        restore_junction(old_path, new_path)
+
+def restore_junction(old_path, new_path):
+    if os.path_exists(new_path):
+        if os.path_exists(old_path):
+            if is_junction(old_path):
+                print("Already junctioned: {}".format(old_path)
+            else:
+                print("Cannot junction; conflicting folder already exists: {}".format(old_path))
+        else:
+            link_save(old_path, new_path)
+            hide_directory(old_path)
 
 def is_junction(path):
     '''
