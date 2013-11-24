@@ -54,4 +54,4 @@ them if they're living some place inappropriate in `~`.
 
 These tend to be older games which are increasingly hard to run. Just use the
 `copy` and `junction` commands to manually link those folders. Or buy the 
-GOG.com versions, which put save files in `~/AppData`. ;-)
+GOG.com versions, which put save files in `~/AppData/Local/GOG.com`. ;-)
