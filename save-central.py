@@ -46,7 +46,7 @@ def restore_junction(old_path, new_path):
     if os.path_exists(new_path):
         if os.path_exists(old_path):
             if is_junction(old_path):
-                print("Already junctioned: {}".format(old_path)
+                print("Already junctioned: {}".format(old_path))
             else:
                 print("Cannot junction; conflicting folder already exists: {}".format(old_path))
         else:
