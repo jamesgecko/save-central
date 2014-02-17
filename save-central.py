@@ -1,13 +1,17 @@
 import shutil
 import csv
 import os
+import sys
 import re
 import ctypes
 from subprocess import call, check_output, STDOUT
 
 def main():
+    if sys.version_info[0] < (3, 2):
+        sys.exit("This script must be run with Python 3.2 or greater")
+        
     if shutil.which('junction') is None:
-        print("Junction command not found! Check the README.")
+        sys.exit("Junction command not found! Check the README.")
 
     create_junctions()
     print('Done')
