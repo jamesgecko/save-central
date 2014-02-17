@@ -7,7 +7,7 @@ import ctypes
 from subprocess import call, check_output, STDOUT
 
 def main():
-    if sys.version_info[0] < (3, 2):
+    if (sys.version_info[0] < 3) or (sys.version_info[0] == 3 and sys.version_info[1] < 2):
         sys.exit("This script must be run with Python 3.2 or greater")
         
     if shutil.which('junction') is None:
