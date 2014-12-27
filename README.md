@@ -52,6 +52,7 @@ them if they're living some place inappropriate in `~`.
 
 #### What about games that don't put their save files anywhere in `%userprofile%`?
 
-These tend to be older games which are increasingly hard to run. Just use the
-`copy` and `junction` commands to manually link those folders. Or buy the 
-GOG.com versions, which put save files in `~/AppData/Local/GOG.com`. ;-)
+The only modern titles I've encountered that do this use UPlay. Not _all_ UPlay games. But at
+least one. The paths for these games are in `unqualified_list.csv`. A lot of older games may
+do this, also. My gaming library is such that I haven't encountered them. Pull requests
+welcome! Or buy the GOG.com versions, which put save files in `~/AppData/Local/GOG.com`. ;-)
