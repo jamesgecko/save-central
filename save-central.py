@@ -5,6 +5,7 @@ import sys
 import re
 import ctypes
 from subprocess import call, check_output, STDOUT
+import options
 
 def main():
     if (sys.version_info[0] < 3) or (sys.version_info[0] == 3 and sys.version_info[1] < 2):
@@ -34,6 +35,7 @@ def save_paths():
                            skipinitialspace=True, strict=True)
         for old_path, new_path in paths:
             old_path = os.path.expandvars(old_path)
+            old_path = re.sub("%steamlibrary%", options.steamlibrary, old_path)
             new_path = os.path.expanduser("~\\Saved Games\\{}".format(new_path))
             yield old_path, new_path
 
