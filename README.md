@@ -14,8 +14,8 @@ As a side effect, it's slightly easier to back up your saves.
 ### Requirements
 
 * Python 3.3
-* Sysinternals [Junction](http://technet.microsoft.com/en-us/sysinternals/bb896768.aspx)
-  * Download and place the exe somewhere in your path.
+
+pip3 install -r requirements.txt
 
 ### Moving and linking
 
