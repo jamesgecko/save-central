@@ -1,38 +1,57 @@
 // use std::fs;
 use csv::Error;
 use std::{env::var_os, path::PathBuf};
+use std::path::Path;
+use std::ffi::CString;
+use std::os::raw::c_char;
 
 pub fn get_userprofile() -> String {
-    match var_os("USERPROFILE").map(PathBuf::from) {
-      Some(path) => {
-        return path.to_string_lossy().to_string();
-      }
-      None => {
-        panic!("Path does not exist");
-      }
+  match var_os("USERPROFILE").map(PathBuf::from) {
+    Some(path) => {
+      return path.to_string_lossy().to_string();
     }
+    None => {
+      panic!("Path does not exist");
+    }
+  }
 }
 
 fn main() -> Result<(), Error> {
-  let mut reader = csv::Reader::from_path("smol_list.csv")?;
+  let mut reader = csv::Reader::from_path("list.csv")?;
   for record in reader.records() {
     let record = record?;
-    let path = format!("{}\\{}", get_userprofile(), &record[0]);
-    println!("From {} to {}", path, &record[1]);
+    let from = format!("{}\\{}", get_userprofile(), &record[0]);
+    let to = format!("{}\\Saved Games\\{}", get_userprofile(), &record[1]);
+    let from_path = Path::new(&from);
+    let to_path = Path::new(&to);
 
-    if is_junction(path) {
-      println!("Junction");
-    } else {
-      println!("Not Junction");
-      // move_and_junction
-      // hide_directory
+    if from_path.exists() {
+      if is_junction(&from) {
+        println!("✅ {}", from);
+      } else {
+        if to_path.exists() {
+          println!("⚠️ Can't move {} -> {}", from, to);
+          println!("Folder in sync directory already exists");
+        } else {
+          println!("🔗 Moving and junctioning {} -> {}", from, to);
+          move_and_junction(&from, &to);
+        }
+      }
+    } else if to_path.exists() {
+      if from_path.exists() {
+        println!("⚠️ Can't link {} -> {}", to, from);
+        println!("from sync directory. Save data at default location already exists.");
+      } else {
+        println!("🔗 Restoring junction {} -> {}", from, to);
+        restore_junction(&from, &to);
+      }
     }
   }
 
   Ok(())
 }
 
-fn is_junction(path: String) -> bool {
+fn is_junction(path: &str) -> bool {
   let is_junction = junction::exists(path);
 
   match is_junction {
@@ -47,32 +66,43 @@ fn is_junction(path: String) -> bool {
   }
 }
 
-// fn move_and_junction(old_path: &str, new_path: &str) { }
-// fn restore_junctions(old_path: &str, new_path: &str) { }
-// fn restore_junction(old_path: &str, new_path: &str) { }
-
-#[allow(dead_code)]
-fn create_junction(old_path: &str, new_path: &str) {
-  let _ = junction::create(old_path, new_path);
+fn move_and_junction(old_path: &str, new_path: &str) {
+  move_save(old_path, new_path);
+  link_save(new_path, old_path);
+  hide_directory(old_path);
 }
 
-#[allow(dead_code)]
-fn move_save(old_path: &str, new_path: &str) -> std::io::Result<()> {
-  println!("{}", format!("Moving... {} -> {}", old_path, new_path));
-  std::fs::rename(old_path, new_path)?;
-  Ok(())
+fn restore_junction(normal_path: &str, save_path: &str) {
+  link_save(save_path, normal_path);
+  hide_directory(normal_path);
 }
 
-#[allow(dead_code)]
-fn link_save(old_path: &str, new_path: &str) {
-  create_junction(old_path, new_path);
+fn create_junction(target: &str, junction: &str) {
+  let _ = junction::create(target, junction);
 }
 
-// TODO
-// #[allow(dead_code)]
-// unsafe fn hide_directory(path: &str) {
-//   winapi::um::fileapi::SetFileAttributesA(
-//     path,
-//     winapi::um::winnt::FILE_ATTRIBUTE_HIDDEN
-//   );
-// }
+fn move_save(old_path: &str, new_path: &str) {
+  let result = std::fs::rename(old_path, new_path);
+  match result {
+    Ok(()) => return,
+    Err(e) => {
+      panic!("Problem renaming the directory: {:?}", e)
+    }
+  }
+}
+
+fn link_save(target: &str, junction: &str) {
+  create_junction(target, junction);
+}
+
+#[cfg(windows)]
+fn hide_directory(path: &str) {
+  let c_path = CString::new(path).unwrap();
+  let c_path_ptr: *const c_char = c_path.as_ptr() as *const c_char;
+  unsafe {
+    winapi::um::fileapi::SetFileAttributesA(
+      c_path_ptr,
+      winapi::um::winnt::FILE_ATTRIBUTE_HIDDEN
+    );
+  }
+}
