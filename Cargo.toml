@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 junction = "=1.0"
 winapi = "=0.3.9"
+csv="1.1"
