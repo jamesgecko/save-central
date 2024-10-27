@@ -1,5 +1,6 @@
 // use std::fs;
-use csv::Error;
+use csv::{Reader, Error};
+use std::fs::File;
 use std::{env::var_os, path::PathBuf};
 use std::path::Path;
 use std::ffi::CString;
@@ -17,9 +18,32 @@ pub fn get_userprofile() -> String {
 }
 
 fn main() -> Result<(), Error> {
-  let mut reader = csv::Reader::from_path("list.csv")?;
-  for record in reader.records() {
-    let record = record?;
+  // Process standard list
+  load_and_crunch_csv(String::from("list.csv"));
+
+  // Process custom list
+  let custom_list = format!("{}\\Saved Games\\save-central.csv", get_userprofile());
+  let custom_list_path = Path::new(&custom_list);
+  if custom_list_path.exists() {
+    load_and_crunch_csv(custom_list);
+  }
+  Ok(())
+}
+
+fn load_and_crunch_csv(file_name: String) {
+  let reader = csv::Reader::from_path(file_name);
+  match reader {
+    Ok(reader) => crunch_csv(reader),
+    Err(e) => panic!("Problem loading {:?}", e)
+  }
+}
+
+fn crunch_csv(mut reader: Reader<File>) {
+  for record_result in reader.records() {
+    let record = match record_result {
+      Err(e) => panic!("Error: {}", e),
+      Ok(record) => record,
+    };
     let from = format!("{}\\{}", get_userprofile(), &record[0]);
     let to = format!("{}\\Saved Games\\{}", get_userprofile(), &record[1]);
     let from_path = Path::new(&from);
@@ -47,8 +71,6 @@ fn main() -> Result<(), Error> {
       }
     }
   }
-
-  Ok(())
 }
 
 fn is_junction(path: &str) -> bool {

@@ -10,6 +10,16 @@ This also makes it easier to back up saves for games that don't have cloud sync.
 
 Just run the utility again and save-central will create junctions for all the save files in `%userprofile%/Saved Games`
 
+### Custom save locations
+
+Any paths in `%userprofile%/Saved Games/save-central.csv` will be linked, if the file exists. For example, to back up my Pico-8 carts and some itch.io ZeroRanger save files:
+
+```
+source,destination
+"AppData\Roaming\pico-8","pico-8"
+"bin\Itch.io\zeroranger\SAVEDATA","zero-ranger"
+```
+
 ### Plausible questions
 
 #### It didn't move some folders?
